@@ -9,8 +9,13 @@ var getElementsByClassName = function(className) {
 	var returnArray =[];
 
 	var findChildren = function(element) {
+
+		// termination
 		if (element.length === 0) {
 			return
+
+		// checks through each element to check class
+		// if element has a class, push the class to returnArray
 		} else {
 			for (var i = 0; i < element.length; i++) {
 				if ($(element[i]).hasClass(className)) {
@@ -19,11 +24,13 @@ var getElementsByClassName = function(className) {
 			}
 		}
 
+		// recursion: run through findChildren on element.children()
 		if (element.children().length > 0) {
 			findChildren(element.children());
 		}
 	}
 
+	// start recursion by setting element as $('body')
 	findChildren($('body'));
 	return returnArray;
 };
