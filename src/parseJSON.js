@@ -44,6 +44,7 @@ var parseJSON = function(json) {
       string += next(position);
       position++;
     }
+    position++;
     return string;
   }
 
@@ -52,16 +53,26 @@ var parseJSON = function(json) {
   // parses through an string and returns the array
   var arrayParser = function() {
     var returnArray = [];
-    var value = '';
+    var value;
 
     while (next(position) !== ']') {
         value = whatIsIt(position);
-        position++;
         if (next(position) === ',') {
           returnArray.push(value);
           position += 2;
         }
       }
+      // if (returnArray[returnArray.length - 1] === returnArray[returnArray.length - 2])// if the last two values in the array are the same
+      // check the length of the second value in the array
+      // move the position to the end of the second spot
+      // run whatIsIt
+      // if the result is not the same as last value in array, change value.
+
+
+      console.log('this is the value: ' + value);
+      console.log('this is the position: ' + position);
+      returnArray.push(value);
+      position++; // moves the position to the closing brack in the json string
     return returnArray;
   }
 
@@ -72,10 +83,9 @@ var parseJSON = function(json) {
     var value;
 
     while (next(position) !== '}') {
-      key = whatIsIt(position); // position is the last value before quotation
-      position += 3; // moves it to the value after ':'
+      key = whatIsIt(position); // returns string. position is right before ':'
+      position += 2; // moves it to the value after ':'
       returnObject[key] = whatIsIt(position); // position is the last value of the item
-      position++; // moves position to the close puncutation
       if (next(position) === ',') {
         position += 2;
       }
@@ -99,7 +109,7 @@ var parseJSON = function(json) {
         position++;
       }
       if (string === 'true') {
-        position -= 2;
+        position--;
         return true;
       }
     } else if (json.charAt(position) === 'f') {
@@ -108,7 +118,7 @@ var parseJSON = function(json) {
         position++;
       }
       if (string === 'false') {
-        position -= 2;
+        position--;
         return false;
       }
     }
