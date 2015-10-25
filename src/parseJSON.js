@@ -5,6 +5,7 @@
 var parseJSON = function(json) {
 
   var position = 0;
+  // var charAtPosition = json.charAt(position);
   // function to look at the next value
   var next = function(charPosition) {
     var start = json.charAt(charPosition);
@@ -23,15 +24,18 @@ var parseJSON = function(json) {
     var startValue = json.charAt(position);
     position++;
     if (startValue === '{') {
-      return objectParser(position);
+      return objectParser();
     } else if (startValue === "'" || startValue === '"') {
-      return stringParser(position);
+      return stringParser();
     } else if (startValue === '[') {
-      return arrayParser(position);
+      return arrayParser();
     } else if (startValue === '{') {
-      return objectParser(position);
+      return objectParser();
+    } else {
+      position--;
+      return numAndBooParser();
     }
-  }
+  };
 
   var stringParser = function() {
     var string = json.charAt(position);
@@ -77,6 +81,37 @@ var parseJSON = function(json) {
       }
     }
     return returnObject;
+  };
+
+  var numAndBooParser = function() {
+    var string = '';
+
+    if (!isNaN(json.charAt(position))) {
+      string += json.charAt(position);
+      while (!isNaN(next(position))) {
+        string += next(position);
+        position++;
+      }
+      return Number(string);
+    } else if (json.charAt(position) === 't') {
+      for (i = 0; i < 4; i++) {
+        string += json.charAt(position);
+        position++;
+      }
+      if (string === 'true') {
+        position -= 2;
+        return true;
+      }
+    } else if (json.charAt(position) === 'f') {
+      for (i = 0; i < 5; i++) {
+        string += json.charAt(position);
+        position++;
+      }
+      if (string === 'false') {
+        position -= 2;
+        return false;
+      }
+    }
   };
 
   return whatIsIt(0);
