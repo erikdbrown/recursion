@@ -33,33 +33,45 @@ var parseJSON = function(json) {
       return objectParser();
     } else {
       position--;
-      return numAndBooParser();
+      return numBooAndNullParser();
     }
   };
 
   var stringParser = function() {
-    var string = json.charAt(position);
+    var string = '';
+    var character = json.charAt(position);
 
-    while (next(position) !== '"' && next(position) !== "'") {
-      string += next(position);
-      position++;
+    while (character !== '"' && character !== "'") {
+      console.log(character + next(position))
+      if (character + next(position) === "\\'") {
+        console.log('found it: ' + character + next(position))
+        string += character + next(position);
+        position += 2;
+      } else {
+        string += character;
+        position++;
+      }
+      character = json.charAt(position);
     }
-    position++;
+    console.log(position);
     return string;
   }
 
 
-// {"menu":{"id":"file","value":"File","popup":{"menuitem":[{"value":"New","onclick":"CreateNewDoc()"},{"value":"Open","onclick":"OpenDoc()"},{"value":"Close","onclick":"CloseDoc()"}]}}}"
+  // {"menu":{"id":"file","value":"File","popup":{"menuitem":[{"value":"New","onclick":"CreateNewDoc()"},{"value":"Open","onclick":"OpenDoc()"},{"value":"Close","onclick":"CloseDoc()"}]}}}"
   // parses through an string and returns the array
   var arrayParser = function() {
     var returnArray = [];
     var value;
 
-    while (next(position) !== ']') {
+    while (json.charAt(position) !== ']') {
         value = whatIsIt(position);
         if (next(position) === ',') {
           returnArray.push(value);
           position += 2;
+        } else if (next(position) === ']') {
+          returnArray.push(value);
+          position++;
         }
       }
       // if (returnArray[returnArray.length - 1] === returnArray[returnArray.length - 2])// if the last two values in the array are the same
@@ -67,12 +79,7 @@ var parseJSON = function(json) {
       // move the position to the end of the second spot
       // run whatIsIt
       // if the result is not the same as last value in array, change value.
-
-
-      console.log('this is the value: ' + value);
-      console.log('this is the position: ' + position);
-      returnArray.push(value);
-      position++; // moves the position to the closing brack in the json string
+      // moves the position to the closing brack in the json string
     return returnArray;
   }
 
@@ -90,10 +97,11 @@ var parseJSON = function(json) {
         position += 2;
       }
     }
+    position++;
     return returnObject;
   };
 
-  var numAndBooParser = function() {
+  var numBooAndNullParser = function() {
     var string = '';
 
     if (!isNaN(json.charAt(position))) {
@@ -121,11 +129,21 @@ var parseJSON = function(json) {
         position--;
         return false;
       }
+    } else if (json.charAt(position) === 'n') {
+      for (i = 0; i < 4; i++) {
+        string += json.charAt(position);
+        position++;
+      }
+      if (string === 'null') {
+        position--;
+        return null;
+      }
+    } else {
+      throw "Invalid at position " + position;
     }
   };
 
   return whatIsIt(0);
-
 
   // your code goes here
 };
